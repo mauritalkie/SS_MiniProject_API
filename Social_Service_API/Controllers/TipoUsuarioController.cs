@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
 using Social_Service_API.Models;
 
 namespace Social_Service_API.Controllers
@@ -18,53 +20,57 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<TipoUsuario>>> GetTipoUsuario()
+		public async Task<ActionResult<List<GetTipoUsuarioDto>>> GetTipoUsuario()
 		{
-			return Ok(await _dataContext.TipoUsuario.ToListAsync());
+			List<TipoUsuario> objects = await _dataContext.TipoUsuario.ToListAsync();
+			List<GetTipoUsuarioDto> dtos = objects.Select(obj => TipoUsuarioMapper.AsDto(obj)).ToList();
+			return Ok(dtos);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<List<TipoUsuario>>> CreateTipoUsuario(TipoUsuario tipoUsuario)
+		public async Task<ActionResult> CreateTipoUsuario(CreateTipoUsuarioDto createTipoUsuarioDto)
 		{
-			_dataContext.TipoUsuario.Add(tipoUsuario);
-			await _dataContext.SaveChangesAsync();
+			TipoUsuario tipoUsuario = TipoUsuarioMapper.AsObject(createTipoUsuarioDto);
 
-			return Ok(await _dataContext.TipoUsuario.ToListAsync());
+			_dataContext.TipoUsuario.Add(tipoUsuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return Ok(response);
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<List<TipoUsuario>>> UpdateTipoUsuario(TipoUsuario tipoUsuario)
+		public async Task<ActionResult> UpdateTipoUsuario(UpdateTipoUsuarioDto updateTipoUsuarioDto)
 		{
-			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(tipoUsuario.id);
+			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(updateTipoUsuarioDto.id);
 			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
 
-			dbTipoUsuario.nombre = tipoUsuario.nombre;
-			dbTipoUsuario.clave = tipoUsuario.clave;
+			dbTipoUsuario.nombre = updateTipoUsuarioDto.nombre;
+			dbTipoUsuario.clave = updateTipoUsuarioDto.clave;
 
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.TipoUsuario.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<List<TipoUsuario>>> DeleteTipoUsuario(int id)
+		public async Task<ActionResult> DeleteTipoUsuario(int id)
 		{
 			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(id);
 			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
 
 			_dataContext.TipoUsuario.Remove(dbTipoUsuario);
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.TipoUsuario.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<List<TipoUsuario>>> GetTipoUsuarioById(int id)
+		public async Task<ActionResult<GetTipoUsuarioDto>> GetTipoUsuarioById(int id)
 		{
 			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(id);
 			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
 
-			return Ok(dbTipoUsuario);
+			return Ok(TipoUsuarioMapper.AsDto(dbTipoUsuario));
 		}
 	}
 }
