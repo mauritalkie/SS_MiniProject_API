@@ -42,7 +42,7 @@ namespace Social_Service_API.Controllers
 		public async Task<ActionResult> UpdateTipoUsuario(UpdateTipoUsuarioDto updateTipoUsuarioDto)
 		{
 			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(updateTipoUsuarioDto.id);
-			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
+			if (dbTipoUsuario == null) return BadRequest("El tipo de usuario no fue encontrado");
 
 			dbTipoUsuario.nombre = updateTipoUsuarioDto.nombre;
 			dbTipoUsuario.clave = updateTipoUsuarioDto.clave;
@@ -56,7 +56,7 @@ namespace Social_Service_API.Controllers
 		public async Task<ActionResult> DeleteTipoUsuario(int id)
 		{
 			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(id);
-			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
+			if (dbTipoUsuario == null) return BadRequest("El tipo de usuario no fue encontrado");
 
 			_dataContext.TipoUsuario.Remove(dbTipoUsuario);
 			var response = await _dataContext.SaveChangesAsync();
@@ -68,7 +68,7 @@ namespace Social_Service_API.Controllers
 		public async Task<ActionResult<GetTipoUsuarioDto>> GetTipoUsuarioById(int id)
 		{
 			var dbTipoUsuario = await _dataContext.TipoUsuario.FindAsync(id);
-			if (dbTipoUsuario == null) return BadRequest("El usuario no fue encontrado");
+			if (dbTipoUsuario == null) return BadRequest("El tipo de usuario no fue encontrado");
 
 			return Ok(TipoUsuarioMapper.AsDto(dbTipoUsuario));
 		}

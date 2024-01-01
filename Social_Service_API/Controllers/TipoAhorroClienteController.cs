@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
 using Social_Service_API.Models;
 
 namespace Social_Service_API.Controllers
@@ -18,52 +20,56 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<TipoAhorroCliente>>> GetTipoAhorroCliente()
+		public async Task<ActionResult<List<GetTipoAhorroClienteDto>>> GetTipoAhorroCliente()
 		{
-			return Ok(await _dataContext.TipoAhorroCliente.ToListAsync());
+			List<TipoAhorroCliente> objects = await _dataContext.TipoAhorroCliente.ToListAsync();
+			List<GetTipoAhorroClienteDto> dtos = objects.Select(obj => TipoAhorroClienteMapper.AsDto(obj)).ToList();
+			return Ok(dtos);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<List<TipoAhorroCliente>>> CreateTipoAhorroCliente(TipoAhorroCliente tipoAhorroCliente)
+		public async Task<ActionResult> CreateTipoAhorroCliente(CreateTipoAhorroClienteDto createTipoAhorroClienteDto)
 		{
-			_dataContext.TipoAhorroCliente.Add(tipoAhorroCliente);
-			await _dataContext.SaveChangesAsync();
+			TipoAhorroCliente TipoAhorroCliente = TipoAhorroClienteMapper.AsObject(createTipoAhorroClienteDto);
 
-			return Ok(await _dataContext.TipoAhorroCliente.ToListAsync());
+			_dataContext.TipoAhorroCliente.Add(TipoAhorroCliente);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return Ok(response);
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<List<TipoAhorroCliente>>> UpdateTipoAhorroCliente(TipoAhorroCliente tipoAhorroCliente)
+		public async Task<ActionResult> UpdateTipoAhorroCliente(UpdateTipoAhorroClienteDto updateTipoAhorroClienteDto)
 		{
-			var dbTipoAhorroCliente = await _dataContext.TipoAhorroCliente.FindAsync(tipoAhorroCliente.id);
-			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro del cliente no fue encontrado");
+			var dbTipoAhorroCliente = await _dataContext.TipoAhorroCliente.FindAsync(updateTipoAhorroClienteDto.id);
+			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro de cliente no fue encontrado");
 
-			dbTipoAhorroCliente.alias = tipoAhorroCliente.alias;
+			dbTipoAhorroCliente.alias = updateTipoAhorroClienteDto.alias;
 
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.TipoAhorroCliente.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<List<TipoAhorroCliente>>> DeleteTipoAhorroCliente(int id)
+		public async Task<ActionResult> DeleteTipoAhorroCliente(int id)
 		{
 			var dbTipoAhorroCliente = await _dataContext.TipoAhorroCliente.FindAsync(id);
-			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro del cliente no fue encontrado");
+			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro de cliente no fue encontrado");
 
 			_dataContext.TipoAhorroCliente.Remove(dbTipoAhorroCliente);
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.TipoAhorroCliente.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<List<TipoAhorroCliente>>> GetTipoAhorroClienteById(int id)
+		public async Task<ActionResult<GetTipoAhorroClienteDto>> GetTipoAhorroClienteById(int id)
 		{
 			var dbTipoAhorroCliente = await _dataContext.TipoAhorroCliente.FindAsync(id);
-			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro del cliente no fue encontrado");
+			if (dbTipoAhorroCliente == null) return BadRequest("El tipo de ahorro de cliente no fue encontrado");
 
-			return Ok(dbTipoAhorroCliente);
+			return Ok(TipoAhorroClienteMapper.AsDto(dbTipoAhorroCliente));
 		}
 	}
 }

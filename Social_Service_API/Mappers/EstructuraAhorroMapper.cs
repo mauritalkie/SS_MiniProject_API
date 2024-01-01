@@ -5,7 +5,7 @@ namespace Social_Service_API.Mappers
 {
 	public class EstructuraAhorroMapper
 	{
-		public GetEstructuraAhorroDto AsDto(EstructuraAhorro obj)
+		public static GetEstructuraAhorroDto AsDto(EstructuraAhorro obj)
 		{
 			return new GetEstructuraAhorroDto(
 				obj.id,
@@ -14,7 +14,7 @@ namespace Social_Service_API.Mappers
 			);
 		}
 
-		public EstructuraAhorro AsObject(CreateEstructuraAhorroDto dto)
+		public static EstructuraAhorro AsObject(CreateEstructuraAhorroDto dto)
 		{
 			return new EstructuraAhorro
 			{

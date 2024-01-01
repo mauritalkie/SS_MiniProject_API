@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
 using Social_Service_API.Models;
 
 namespace Social_Service_API.Controllers
@@ -20,34 +22,38 @@ namespace Social_Service_API.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<Acceso>>> GetAcceso()
 		{
-			return Ok(await _dataContext.Acceso.ToListAsync());
+			List<Acceso> objects = await _dataContext.Acceso.ToListAsync();
+			List<GetAccesoDto> dtos = objects.Select(obj => AccesoMapper.AsDto(obj)).ToList();
+			return Ok(dtos);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<List<Acceso>>> CreateAcceso(Acceso acceso)
+		public async Task<ActionResult> CreateAcceso(CreateAccesoDto createAccesoDto)
 		{
-			_dataContext.Acceso.Add(acceso);
-			await _dataContext.SaveChangesAsync();
+			Acceso acceso = AccesoMapper.AsObject(createAccesoDto);
 
-			return Ok(await _dataContext.Acceso.ToListAsync());
+			_dataContext.Acceso.Add(acceso);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return Ok(response);
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<List<Acceso>>> UpdateAcceso(Acceso acceso)
+		public async Task<ActionResult> UpdateAcceso(UpdateAccesoDto updateAccesoDto)
 		{
-			var dbAcceso = await _dataContext.Acceso.FindAsync(acceso.id);
+			var dbAcceso = await _dataContext.Acceso.FindAsync(updateAccesoDto.id);
 			if (dbAcceso == null) return BadRequest("El acceso no fue encontrado");
 
-			dbAcceso.nombre = acceso.nombre;
-			dbAcceso.clave = acceso.clave;
+			dbAcceso.nombre = updateAccesoDto.nombre;
+			dbAcceso.clave = updateAccesoDto.clave;
 
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.Acceso.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<List<Acceso>>> DeleteAcceso(int id)
+		public async Task<ActionResult> DeleteAcceso(int id)
 		{
 			var dbAcceso = await _dataContext.Acceso.FindAsync(id);
 			if (dbAcceso == null) return BadRequest("El acceso no fue encontrado");
@@ -59,12 +65,12 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<List<Acceso>>> GetAccesoById(int id)
+		public async Task<ActionResult<GetAccesoDto>> GetAccesoById(int id)
 		{
 			var dbAcceso = await _dataContext.Acceso.FindAsync(id);
 			if (dbAcceso == null) return BadRequest("El acceso no fue encontrado");
 
-			return Ok(dbAcceso);
+			return Ok(AccesoMapper.AsDto(dbAcceso));
 		}
 	}
 }

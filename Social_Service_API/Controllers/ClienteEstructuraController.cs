@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
 using Social_Service_API.Models;
 
 namespace Social_Service_API.Controllers
@@ -20,50 +22,54 @@ namespace Social_Service_API.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<ClienteEstructura>>> GetClienteEstructura()
 		{
-			return Ok(await _dataContext.ClienteEstructura.ToListAsync());
+			List<ClienteEstructura> objects = await _dataContext.ClienteEstructura.ToListAsync();
+			List<GetClienteEstructuraDto> dtos = objects.Select(obj => ClienteEstructuraMapper.AsDto(obj)).ToList();
+			return Ok(dtos);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<List<ClienteEstructura>>> CreateClienteEstructura(ClienteEstructura clienteEstructura)
+		public async Task<ActionResult> CreateClienteEstructura(CreateClienteEstructuraDto createClienteEstructuraDto)
 		{
-			_dataContext.ClienteEstructura.Add(clienteEstructura);
-			await _dataContext.SaveChangesAsync();
+			ClienteEstructura clienteEstructura = ClienteEstructuraMapper.AsObject(createClienteEstructuraDto);
 
-			return Ok(await _dataContext.ClienteEstructura.ToListAsync());
+			_dataContext.ClienteEstructura.Add(clienteEstructura);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return Ok(response);
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<List<ClienteEstructura>>> UpdateClienteEstructura(ClienteEstructura clienteEstructura)
+		public async Task<ActionResult> UpdateClienteEstructura(UpdateClienteEstructuraDto updateClienteEstructuraDto)
 		{
-			var dbClienteEstructura = await _dataContext.ClienteEstructura.FindAsync(clienteEstructura.id);
+			var dbClienteEstructura = await _dataContext.ClienteEstructura.FindAsync(updateClienteEstructuraDto.id);
 			if (dbClienteEstructura == null) return BadRequest("La estructura del cliente no fue encontrada");
 
-			dbClienteEstructura.nombre = clienteEstructura.nombre;
+			dbClienteEstructura.nombre = updateClienteEstructuraDto.nombre;
 
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.ClienteEstructura.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<List<ClienteEstructura>>> DeleteClienteEstructura(int id)
+		public async Task<ActionResult> DeleteClienteEstructura(int id)
 		{
 			var dbClienteEstructura = await _dataContext.ClienteEstructura.FindAsync(id);
-			if (dbClienteEstructura == null) return BadRequest("\"La estructura del cliente no fue encontrada");
+			if (dbClienteEstructura == null) return BadRequest("La estructura del cliente no fue encontrada");
 
 			_dataContext.ClienteEstructura.Remove(dbClienteEstructura);
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.ClienteEstructura.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<List<ClienteEstructura>>> GetClienteEstructuraById(int id)
 		{
 			var dbClienteEstructura = await _dataContext.ClienteEstructura.FindAsync(id);
-			if (dbClienteEstructura == null) return BadRequest("\"La estructura del cliente no fue encontrada");
+			if (dbClienteEstructura == null) return BadRequest("La estructura del cliente no fue encontrada");
 
-			return Ok(dbClienteEstructura);
+			return Ok(ClienteEstructuraMapper.AsDto(dbClienteEstructura));
 		}
 	}
 }

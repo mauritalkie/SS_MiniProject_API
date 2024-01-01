@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
 using Social_Service_API.Models;
 
 namespace Social_Service_API.Controllers
@@ -20,56 +22,60 @@ namespace Social_Service_API.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<Usuario>>> GetUsuario()
 		{
-			return Ok(await _dataContext.Usuario.ToListAsync());
+			List<Usuario> objects = await _dataContext.Usuario.ToListAsync();
+			List<GetUsuarioDto> dtos = objects.Select(obj => UsuarioMapper.AsDto(obj)).ToList();
+			return Ok(dtos);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<List<Usuario>>> CreateUsuario(Usuario usuario)
+		public async Task<ActionResult> CreateUsuario(CreateUsuarioDto createUsuarioDto)
 		{
-			_dataContext.Usuario.Add(usuario);
-			await _dataContext.SaveChangesAsync();
+			Usuario usuario = UsuarioMapper.AsObject(createUsuarioDto);
 
-			return Ok(await _dataContext.Usuario.ToListAsync());
+			_dataContext.Usuario.Add(usuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return Ok(response);
 		}
 
 		[HttpPut]
-		public async Task<ActionResult<List<Usuario>>> UpdateUsuario(Usuario usuario)
+		public async Task<ActionResult> UpdateUsuario(UpdateUsuarioDto updateUsuarioDto)
 		{
-			var dbUsuario = await _dataContext.Usuario.FindAsync(usuario.id);
+			var dbUsuario = await _dataContext.Usuario.FindAsync(updateUsuarioDto.id);
 			if (dbUsuario == null) return BadRequest("El usuario no fue encontrado");
 
-			dbUsuario.nombre = usuario.nombre;
-			dbUsuario.apellido_paterno = usuario.apellido_paterno;
-			dbUsuario.apellido_materno = usuario.apellido_materno;
-			dbUsuario.correo = usuario.correo;
-			dbUsuario.telefono = usuario.telefono;
-			dbUsuario.usuario = usuario.usuario;
-			dbUsuario.contrasenia = usuario.contrasenia;
+			dbUsuario.nombre = updateUsuarioDto.nombre;
+			dbUsuario.apellido_paterno = updateUsuarioDto.apellido_paterno;
+			dbUsuario.apellido_materno = updateUsuarioDto.apellido_materno;
+			dbUsuario.correo = updateUsuarioDto.correo;
+			dbUsuario.telefono = updateUsuarioDto.telefono;
+			dbUsuario.usuario = updateUsuarioDto.usuario;
+			dbUsuario.contrasenia = updateUsuarioDto.contrasenia;
 
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.Usuario.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult<List<Usuario>>> DeleteUsuario(int id)
+		public async Task<ActionResult> DeleteUsuario(int id)
 		{
 			var dbUsuario = await _dataContext.Usuario.FindAsync(id);
 			if (dbUsuario == null) return BadRequest("El usuario no fue encontrado");
 
 			_dataContext.Usuario.Remove(dbUsuario);
-			await _dataContext.SaveChangesAsync();
+			var response = await _dataContext.SaveChangesAsync();
 
-			return Ok(await _dataContext.Usuario.ToListAsync());
+			return Ok(response);
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<List<Usuario>>> GetUsuarioById(int id)
+		public async Task<ActionResult<GetOneUsuarioDto>> GetUsuarioById(int id)
 		{
 			var dbUsuario = await _dataContext.Usuario.FindAsync(id);
 			if (dbUsuario == null) return BadRequest("El usuario no fue encontrado");
 
-			return Ok(dbUsuario);
+			return Ok(UsuarioMapper.AsOneDto(dbUsuario));
 		}
 	}
 }

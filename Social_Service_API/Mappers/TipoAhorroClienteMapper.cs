@@ -3,7 +3,7 @@ using Social_Service_API.Models;
 
 namespace Social_Service_API.Mappers
 {
-	public class TipoAhorroClienteMappers
+	public class TipoAhorroClienteMapper
 	{
 		public static GetTipoAhorroClienteDto AsDto(TipoAhorroCliente obj)
 		{
