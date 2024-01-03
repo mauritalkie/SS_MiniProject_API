@@ -1,34 +1,72 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Social_Service_API.Data;
 using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
+using Social_Service_API.Models;
 using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Services
 {
 	public class ClienteService : IClienteService
 	{
-		public Task<ActionResult> CreateCliente(CreateClienteDto createClienteDto)
+		private readonly DataContext _dataContext;
+
+		public ClienteService(DataContext dataContext)
 		{
-			throw new NotImplementedException();
+			_dataContext = dataContext;
 		}
 
-		public Task<ActionResult> DeleteCliente(int id)
+		public async Task<ActionResult> CreateCliente(CreateClienteDto createClienteDto)
 		{
-			throw new NotImplementedException();
+			Cliente cliente = ClienteMapper.AsObject(createClienteDto);
+
+			_dataContext.Cliente.Add(cliente);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<List<GetClienteDto>>> GetCliente()
+		public async Task<ActionResult> DeleteCliente(int id)
 		{
-			throw new NotImplementedException();
+			var dbCliente = await _dataContext.Cliente.FindAsync(id);
+			if (dbCliente == null) return new JsonResult("El cliente no fue encontrado");
+
+			_dataContext.Cliente.Remove(dbCliente);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<GetOneClienteDto>> GetClienteById(int id)
+		public async Task<ActionResult<List<GetClienteDto>>> GetCliente()
 		{
-			throw new NotImplementedException();
+			List<Cliente> objects = await _dataContext.Cliente.ToListAsync();
+			List<GetClienteDto> dtos = objects.Select(obj => ClienteMapper.AsDto(obj)).ToList();
+			return dtos;
 		}
 
-		public Task<ActionResult> UpdateCliente(UpdateClienteDto updateClienteDto)
+		public async Task<ActionResult<GetOneClienteDto>> GetClienteById(int id)
 		{
-			throw new NotImplementedException();
+			var dbCliente = await _dataContext.Cliente.FindAsync(id);
+			if (dbCliente == null) return new JsonResult("El cliente no fue encontrado");
+
+			return ClienteMapper.AsOneDto(dbCliente);
+		}
+
+		public async Task<ActionResult> UpdateCliente(UpdateClienteDto updateClienteDto)
+		{
+			var dbCliente = await _dataContext.Cliente.FindAsync(updateClienteDto.id);
+			if (dbCliente == null) return new JsonResult("El cliente no fue encontrado");
+
+			dbCliente.numero = updateClienteDto.numero;
+			dbCliente.nombre = updateClienteDto.nombre;
+			dbCliente.rfc = updateClienteDto.rfc;
+			dbCliente.direccion = updateClienteDto.direccion;
+			dbCliente.correo = updateClienteDto.correo;
+
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 	}
 }

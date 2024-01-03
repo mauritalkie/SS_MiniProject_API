@@ -5,6 +5,7 @@ using Social_Service_API.Data;
 using Social_Service_API.DTOs;
 using Social_Service_API.Mappers;
 using Social_Service_API.Models;
+using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Controllers
 {
@@ -12,65 +13,41 @@ namespace Social_Service_API.Controllers
 	[ApiController]
 	public class PerfilController : ControllerBase
 	{
-		private readonly DataContext _dataContext;
+		private readonly IPerfilService _perfilService;
 
-		public PerfilController(DataContext dataContext)
+		public PerfilController(IPerfilService perfilService)
 		{
-			_dataContext = dataContext;
+			_perfilService = perfilService;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<List<GetPerfilDto>>> GetPerfil()
 		{
-			List<Perfil> objects = await _dataContext.Perfil.ToListAsync();
-			List<GetPerfilDto> dtos = objects.Select(obj => PerfilMapper.AsDto(obj)).ToList();
-			return Ok(dtos);
+			return await _perfilService.GetPerfil();
 		}
 
 		[HttpPost]
 		public async Task<ActionResult> CreatePerfil(CreatePerfilDto createPerfilDto)
 		{
-			Perfil perfil = PerfilMapper.AsObject(createPerfilDto);
-
-			_dataContext.Perfil.Add(perfil);
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilService.CreatePerfil(createPerfilDto);
 		}
 
 		[HttpPut]
 		public async Task<ActionResult> UpdatePerfil(UpdatePerfilDto updatePerfilDto)
 		{
-			var dbPerfil = await _dataContext.Perfil.FindAsync(updatePerfilDto.id);
-			if (dbPerfil == null) return BadRequest("El perfil no fue encontrado");
-
-			dbPerfil.nombre = updatePerfilDto.nombre;
-			dbPerfil.clave = updatePerfilDto.clave;
-
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilService.UpdatePerfil(updatePerfilDto);
 		}
 
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> DeletePerfil(int id)
 		{
-			var dbPerfil = await _dataContext.Perfil.FindAsync(id);
-			if (dbPerfil == null) return BadRequest("El perfil no fue encontrado");
-
-			_dataContext.Perfil.Remove(dbPerfil);
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilService.DeletePerfil(id);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<GetPerfilDto>> GetPerfilById(int id)
 		{
-			var dbPerfil = await _dataContext.Perfil.FindAsync(id);
-			if (dbPerfil == null) return BadRequest("El perfil no fue encontrado");
-
-			return Ok(PerfilMapper.AsDto(dbPerfil));
+			return await _perfilService.GetPerfilById(id);
 		}
 	}
 }

@@ -1,34 +1,69 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Social_Service_API.Data;
 using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
+using Social_Service_API.Models;
 using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Services
 {
 	public class AccesoService : IAccesoService
 	{
-		public Task<ActionResult> CreateAcceso(CreateAccesoDto createAccesoDto)
+		private readonly DataContext _dataContext;
+
+		public AccesoService(DataContext dataContext)
 		{
-			throw new NotImplementedException();
+			_dataContext = dataContext;
 		}
 
-		public Task<ActionResult> DeleteAcceso(int id)
+		public async Task<ActionResult> CreateAcceso(CreateAccesoDto createAccesoDto)
 		{
-			throw new NotImplementedException();
+			Acceso acceso = AccesoMapper.AsObject(createAccesoDto);
+
+			_dataContext.Acceso.Add(acceso);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<List<GetAccesoDto>>> GetAcceso()
+		public async Task<ActionResult> DeleteAcceso(int id)
 		{
-			throw new NotImplementedException();
+			var dbAcceso = await _dataContext.Acceso.FindAsync(id);
+			if (dbAcceso == null) return new JsonResult("El acceso no fue encontrado");
+
+			_dataContext.Acceso.Remove(dbAcceso);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<GetAccesoDto>> GetAccesoById(int id)
+		public async Task<ActionResult<List<GetAccesoDto>>> GetAcceso()
 		{
-			throw new NotImplementedException();
+			List<Acceso> objects = await _dataContext.Acceso.ToListAsync();
+			List<GetAccesoDto> dtos = objects.Select(obj => AccesoMapper.AsDto(obj)).ToList();
+			return dtos;
 		}
 
-		public Task<ActionResult> UpdateAcceso(UpdateAccesoDto updateAccesoDto)
+		public async Task<ActionResult<GetAccesoDto>> GetAccesoById(int id)
 		{
-			throw new NotImplementedException();
+			var dbAcceso = await _dataContext.Acceso.FindAsync(id);
+			if (dbAcceso == null) return new JsonResult("El acceso no fue encontrado");
+
+			return AccesoMapper.AsDto(dbAcceso);
+		}
+
+		public async Task<ActionResult> UpdateAcceso(UpdateAccesoDto updateAccesoDto)
+		{
+			var dbAcceso = await _dataContext.Acceso.FindAsync(updateAccesoDto.id);
+			if (dbAcceso == null) return new JsonResult("El acceso no fue encontrado");
+
+			dbAcceso.nombre = updateAccesoDto.nombre;
+			dbAcceso.clave = updateAccesoDto.clave;
+
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 	}
 }

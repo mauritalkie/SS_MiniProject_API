@@ -15,7 +15,7 @@ namespace Social_Service_API.Controllers
 	{
 		private readonly ITipoUsuarioService _tipoUsuarioService;
 
-		public TipoUsuarioController(DataContext dataContext, ITipoUsuarioService tipoUsuarioService)
+		public TipoUsuarioController(ITipoUsuarioService tipoUsuarioService)
 		{
 			_tipoUsuarioService = tipoUsuarioService;
 		}

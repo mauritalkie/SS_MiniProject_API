@@ -5,6 +5,7 @@ using Social_Service_API.Data;
 using Social_Service_API.DTOs;
 using Social_Service_API.Mappers;
 using Social_Service_API.Models;
+using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Controllers
 {
@@ -12,65 +13,41 @@ namespace Social_Service_API.Controllers
 	[ApiController]
 	public class PerfilAccesoController : ControllerBase
 	{
-		private readonly DataContext _dataContext;
+		private readonly IPerfilAccesoService _perfilAccesoService;
 
-		public PerfilAccesoController(DataContext dataContext)
+		public PerfilAccesoController(IPerfilAccesoService perfilAccesoService)
 		{
-			_dataContext = dataContext;
+			_perfilAccesoService = perfilAccesoService;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<List<GetPerfilAccesoDto>>> GetPerfilAcceso()
 		{
-			List<PerfilAcceso> objects = await _dataContext.PerfilAcceso.ToListAsync();
-			List<GetPerfilAccesoDto> dtos = objects.Select(obj => PerfilAccesoMapper.AsDto(obj)).ToList();
-			return Ok(dtos);
+			return await _perfilAccesoService.GetPerfilAcceso();
 		}
 
 		[HttpPost]
 		public async Task<ActionResult> CreatePerfilAcceso(CreatePerfilAccesoDto createPerfilAccesoDto)
 		{
-			PerfilAcceso perfilAcceso = PerfilAccesoMapper.AsObject(createPerfilAccesoDto);
-
-			_dataContext.PerfilAcceso.Add(perfilAcceso);
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilAccesoService.CreatePerfilAcceso(createPerfilAccesoDto);
 		}
 
 		[HttpPut]
 		public async Task<ActionResult> UpdatePerfilAcceso(UpdatePerfilAccesoDto updatePerfilAccesoDto)
 		{
-			var dbPerfilAcceso = await _dataContext.PerfilAcceso.FindAsync(updatePerfilAccesoDto.id);
-			if (dbPerfilAcceso == null) return BadRequest("El perfil de acceso no fue encontrado");
-
-			dbPerfilAcceso.id_acceso = updatePerfilAccesoDto.id_acceso;
-			dbPerfilAcceso.id_perfil = updatePerfilAccesoDto.id_perfil;
-
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilAccesoService.UpdatePerfilAcceso(updatePerfilAccesoDto);
 		}
 
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> DeletePerfilAcceso(int id)
 		{
-			var dbPerfilAcceso = await _dataContext.PerfilAcceso.FindAsync(id);
-			if (dbPerfilAcceso == null) return BadRequest("El perfil de acceso no fue encontrado");
-
-			_dataContext.PerfilAcceso.Remove(dbPerfilAcceso);
-			var response = await _dataContext.SaveChangesAsync();
-
-			return Ok(response);
+			return await _perfilAccesoService.DeletePerfilAcceso(id);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<GetPerfilAccesoDto>> GetPerfilAccesoById(int id)
 		{
-			var dbPerfilAcceso = await _dataContext.PerfilAcceso.FindAsync(id);
-			if (dbPerfilAcceso == null) return BadRequest("El perfil de acceso no fue encontrado");
-
-			return Ok(PerfilAccesoMapper.AsDto(dbPerfilAcceso));
+			return await _perfilAccesoService.GetPerfilAccesoById(id);
 		}
 	}
 }

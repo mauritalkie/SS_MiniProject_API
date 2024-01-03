@@ -1,34 +1,69 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Social_Service_API.Data;
 using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
+using Social_Service_API.Models;
 using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Services
 {
 	public class EstructuraAhorroService : IEstructuraAhorroService
 	{
-		public Task<ActionResult> CreateEstructuraAhorro(CreateEstructuraAhorroDto createEstructuraAhorroDto)
+		private readonly DataContext _dataContext;
+
+		public EstructuraAhorroService(DataContext dataContext)
 		{
-			throw new NotImplementedException();
+			_dataContext = dataContext;
 		}
 
-		public Task<ActionResult> DeleteEstructuraAhorro(int id)
+		public async Task<ActionResult> CreateEstructuraAhorro(CreateEstructuraAhorroDto createEstructuraAhorroDto)
 		{
-			throw new NotImplementedException();
+			EstructuraAhorro estructuraAhorro = EstructuraAhorroMapper.AsObject(createEstructuraAhorroDto);
+
+			_dataContext.EstructuraAhorro.Add(estructuraAhorro);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<List<GetEstructuraAhorroDto>>> GetEstructuraAhorro()
+		public async Task<ActionResult> DeleteEstructuraAhorro(int id)
 		{
-			throw new NotImplementedException();
+			var dbEstructuraAhorro = await _dataContext.EstructuraAhorro.FindAsync(id);
+			if (dbEstructuraAhorro == null) return new JsonResult("La estructura de ahorro no fue encontrada");
+
+			_dataContext.EstructuraAhorro.Remove(dbEstructuraAhorro);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<GetEstructuraAhorroDto>> GetEstructuraAhorroById(int id)
+		public async Task<ActionResult<List<GetEstructuraAhorroDto>>> GetEstructuraAhorro()
 		{
-			throw new NotImplementedException();
+			List<EstructuraAhorro> objects = await _dataContext.EstructuraAhorro.ToListAsync();
+			List<GetEstructuraAhorroDto> dtos = objects.Select(obj => EstructuraAhorroMapper.AsDto(obj)).ToList();
+			return dtos;
 		}
 
-		public Task<ActionResult> UpdateEstructuraAhorro(UpdateEstructuraAhorroDto updateEstructuraAhorroDto)
+		public async Task<ActionResult<GetEstructuraAhorroDto>> GetEstructuraAhorroById(int id)
 		{
-			throw new NotImplementedException();
+			var dbEstructuraAhorro = await _dataContext.EstructuraAhorro.FindAsync(id);
+			if (dbEstructuraAhorro == null) return new JsonResult("La estructura de ahorro no fue encontrada");
+
+			return EstructuraAhorroMapper.AsDto(dbEstructuraAhorro);
+		}
+
+		public async Task<ActionResult> UpdateEstructuraAhorro(UpdateEstructuraAhorroDto updateEstructuraAhorroDto)
+		{
+			var dbEstructuraAhorro = await _dataContext.EstructuraAhorro.FindAsync(updateEstructuraAhorroDto.id);
+			if (dbEstructuraAhorro == null) return new JsonResult("La estructura de ahorro no fue encontrada");
+
+			dbEstructuraAhorro.id_tipo_ahorro_cliente = updateEstructuraAhorroDto.id_tipo_ahorro_cliente;
+			dbEstructuraAhorro.id_cliente_estructura = updateEstructuraAhorroDto.id_cliente_estructura;
+
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 	}
 }

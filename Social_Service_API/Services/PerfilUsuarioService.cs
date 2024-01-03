@@ -1,34 +1,69 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Social_Service_API.Data;
 using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
+using Social_Service_API.Models;
 using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Services
 {
 	public class PerfilUsuarioService : IPerfilUsuarioService
 	{
-		public Task<ActionResult> CreatePerfilUsuario(CreatePerfilUsuarioDto createPerfilUsuarioDto)
+		private readonly DataContext _dataContext;
+
+		public PerfilUsuarioService(DataContext dataContext)
 		{
-			throw new NotImplementedException();
+			_dataContext = dataContext;
 		}
 
-		public Task<ActionResult> DeletePerfilUsuario(int id)
+		public async Task<ActionResult> CreatePerfilUsuario(CreatePerfilUsuarioDto createPerfilUsuarioDto)
 		{
-			throw new NotImplementedException();
+			PerfilUsuario perfilUsuario = PerfilUsuarioMapper.AsObject(createPerfilUsuarioDto);
+
+			_dataContext.PerfilUsuario.Add(perfilUsuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<List<GetPerfilUsuarioDto>>> GetPerfilUsuario()
+		public async Task<ActionResult> DeletePerfilUsuario(int id)
 		{
-			throw new NotImplementedException();
+			var dbPerfilUsuario = await _dataContext.PerfilUsuario.FindAsync(id);
+			if (dbPerfilUsuario == null) return new JsonResult("El perfil de usuario no fue encontrado");
+
+			_dataContext.PerfilUsuario.Remove(dbPerfilUsuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<GetPerfilUsuarioDto>> GetPerfilUsuarioById(int id)
+		public async Task<ActionResult<List<GetPerfilUsuarioDto>>> GetPerfilUsuario()
 		{
-			throw new NotImplementedException();
+			List<PerfilUsuario> objects = await _dataContext.PerfilUsuario.ToListAsync();
+			List<GetPerfilUsuarioDto> dtos = objects.Select(obj => PerfilUsuarioMapper.AsDto(obj)).ToList();
+			return dtos;
 		}
 
-		public Task<ActionResult> UpdatePerfilUsuario(UpdatePerfilUsuarioDto updatePerfilUsuarioDto)
+		public async Task<ActionResult<GetPerfilUsuarioDto>> GetPerfilUsuarioById(int id)
 		{
-			throw new NotImplementedException();
+			var dbPerfilUsuario = await _dataContext.PerfilUsuario.FindAsync(id);
+			if (dbPerfilUsuario == null) return new JsonResult("El perfil de usuario no fue encontrado");
+
+			return PerfilUsuarioMapper.AsDto(dbPerfilUsuario);
+		}
+
+		public async Task<ActionResult> UpdatePerfilUsuario(UpdatePerfilUsuarioDto updatePerfilUsuarioDto)
+		{
+			var dbPerfilUsuario = await _dataContext.PerfilUsuario.FindAsync(updatePerfilUsuarioDto.id);
+			if (dbPerfilUsuario == null) return new JsonResult("El perfil de usuario no fue encontrado");
+
+			dbPerfilUsuario.id_usuario = updatePerfilUsuarioDto.id_usuario;
+			dbPerfilUsuario.id_perfil = updatePerfilUsuarioDto.id_perfil;
+
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 	}
 }

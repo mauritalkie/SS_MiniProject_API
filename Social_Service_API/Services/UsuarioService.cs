@@ -1,34 +1,74 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Social_Service_API.Data;
 using Social_Service_API.DTOs;
+using Social_Service_API.Mappers;
+using Social_Service_API.Models;
 using Social_Service_API.Services.Interfaces;
 
 namespace Social_Service_API.Services
 {
 	public class UsuarioService : IUsuarioService
 	{
-		public Task<ActionResult> CreateUsuario(CreateUsuarioDto createUsuarioDto)
+		private readonly DataContext _dataContext;
+
+		public UsuarioService(DataContext dataContext)
 		{
-			throw new NotImplementedException();
+			_dataContext = dataContext;
 		}
 
-		public Task<ActionResult> DeleteUsuario(int id)
+		public async Task<ActionResult> CreateUsuario(CreateUsuarioDto createUsuarioDto)
 		{
-			throw new NotImplementedException();
+			Usuario usuario = UsuarioMapper.AsObject(createUsuarioDto);
+
+			_dataContext.Usuario.Add(usuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<List<GetUsuarioDto>>> GetUsuario()
+		public async Task<ActionResult> DeleteUsuario(int id)
 		{
-			throw new NotImplementedException();
+			var dbUsuario = await _dataContext.Usuario.FindAsync(id);
+			if (dbUsuario == null) return new JsonResult("El tipo de usuario no fue encontrado");
+
+			_dataContext.Usuario.Remove(dbUsuario);
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 
-		public Task<ActionResult<GetOneUsuarioDto>> GetUsuarioById(int id)
+		public async Task<ActionResult<List<GetUsuarioDto>>> GetUsuario()
 		{
-			throw new NotImplementedException();
+			List<Usuario> objects = await _dataContext.Usuario.ToListAsync();
+			List<GetUsuarioDto> dtos = objects.Select(obj => UsuarioMapper.AsDto(obj)).ToList();
+			return dtos;
 		}
 
-		public Task<ActionResult> UpdateUsuario(UpdateUsuarioDto updateUsuarioDto)
+		public async Task<ActionResult<GetOneUsuarioDto>> GetUsuarioById(int id)
 		{
-			throw new NotImplementedException();
+			var dbUsuario = await _dataContext.Usuario.FindAsync(id);
+			if (dbUsuario == null) return new JsonResult("El tipo de usuario no fue encontrado");
+
+			return UsuarioMapper.AsOneDto(dbUsuario);
+		}
+
+		public async Task<ActionResult> UpdateUsuario(UpdateUsuarioDto updateUsuarioDto)
+		{
+			var dbUsuario = await _dataContext.Usuario.FindAsync(updateUsuarioDto.id);
+			if (dbUsuario == null) return new JsonResult("El tipo de usuario no fue encontrado");
+
+			dbUsuario.nombre = updateUsuarioDto.nombre;
+			dbUsuario.apellido_paterno = updateUsuarioDto.apellido_paterno;
+			dbUsuario.apellido_materno = updateUsuarioDto.apellido_materno;
+			dbUsuario.correo = updateUsuarioDto.correo;
+			dbUsuario.telefono = updateUsuarioDto.telefono;
+			dbUsuario.usuario = updateUsuarioDto.usuario;
+			dbUsuario.contrasenia = updateUsuarioDto.contrasenia;
+
+			var response = await _dataContext.SaveChangesAsync();
+
+			return new JsonResult(response);
 		}
 	}
 }
