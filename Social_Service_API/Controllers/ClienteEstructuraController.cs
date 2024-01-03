@@ -20,7 +20,7 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<ClienteEstructura>>> GetClienteEstructura()
+		public async Task<ActionResult<List<GetClienteEstructuraDto>>> GetClienteEstructura()
 		{
 			List<ClienteEstructura> objects = await _dataContext.ClienteEstructura.ToListAsync();
 			List<GetClienteEstructuraDto> dtos = objects.Select(obj => ClienteEstructuraMapper.AsDto(obj)).ToList();

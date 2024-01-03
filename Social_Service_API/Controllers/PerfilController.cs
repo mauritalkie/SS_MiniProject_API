@@ -20,7 +20,7 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<Perfil>>> GetPerfil()
+		public async Task<ActionResult<List<GetPerfilDto>>> GetPerfil()
 		{
 			List<Perfil> objects = await _dataContext.Perfil.ToListAsync();
 			List<GetPerfilDto> dtos = objects.Select(obj => PerfilMapper.AsDto(obj)).ToList();

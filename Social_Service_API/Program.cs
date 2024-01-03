@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Social_Service_API.Data;
+using Social_Service_API.Services;
+using Social_Service_API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,8 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 builder.Services.AddDbContext<DataContext>(
 	options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 	);
+
+builder.Services.AddScoped<ITipoUsuarioService, TipoUsuarioService>();
 
 var app = builder.Build();
 

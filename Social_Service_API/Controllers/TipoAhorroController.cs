@@ -20,7 +20,7 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<TipoAhorro>>> GetTipoAhorro()
+		public async Task<ActionResult<List<GetTipoAhorroDto>>> GetTipoAhorro()
 		{
 			List<TipoAhorro> objects = await _dataContext.TipoAhorro.ToListAsync();
 			List<GetTipoAhorroDto> dtos = objects.Select(obj => TipoAhorroMapper.AsDto(obj)).ToList();

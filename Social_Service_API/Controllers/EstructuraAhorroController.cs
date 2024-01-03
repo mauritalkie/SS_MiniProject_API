@@ -20,7 +20,7 @@ namespace Social_Service_API.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<List<EstructuraAhorro>>> GetEstructuraAhorro()
+		public async Task<ActionResult<List<GetEstructuraAhorroDto>>> GetEstructuraAhorro()
 		{
 			List<EstructuraAhorro> objects = await _dataContext.EstructuraAhorro.ToListAsync();
 			List<GetEstructuraAhorroDto> dtos = objects.Select(obj => EstructuraAhorroMapper.AsDto(obj)).ToList();
