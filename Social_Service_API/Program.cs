@@ -18,6 +18,16 @@ builder.Services.AddDbContext<DataContext>(
 	);
 
 builder.Services.AddScoped<ITipoUsuarioService, TipoUsuarioService>();
+builder.Services.AddScoped<IAccesoService, AccesoService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<ITipoAhorroService, TipoAhorroService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPerfilAccesoService, PerfilAccesoService>();
+builder.Services.AddScoped<IPerfilUsuarioService, PerfilUsuarioService>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IClienteEstructuraService, ClienteEstructuraService>();
+builder.Services.AddScoped<ITipoAhorroClienteService, TipoAhorroClienteService>();
+builder.Services.AddScoped<IEstructuraAhorroService, EstructuraAhorroService>();
 
 var app = builder.Build();
 
