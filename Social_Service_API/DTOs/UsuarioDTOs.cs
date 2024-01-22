@@ -37,6 +37,7 @@
 		string apellido_materno,
 		string correo,
 		string telefono,
-		string usuario
+		string usuario,
+		string contrasenia
 	);
 }

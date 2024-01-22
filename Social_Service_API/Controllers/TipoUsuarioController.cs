@@ -49,5 +49,11 @@ namespace Social_Service_API.Controllers
 		{
 			return await _tipoUsuarioService.GetTipoUsuarioById(id);
 		}
+
+		[HttpGet("UrMom")]
+		public string UrMom()
+		{
+			return _tipoUsuarioService.UrMom();
+		}
 	}
 }

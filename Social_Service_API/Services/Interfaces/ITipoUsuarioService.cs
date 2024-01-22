@@ -10,5 +10,6 @@ namespace Social_Service_API.Services.Interfaces
 		Task<ActionResult> UpdateTipoUsuario(UpdateTipoUsuarioDto updateTipoUsuarioDto);
 		Task<ActionResult> DeleteTipoUsuario(int id);
 		Task<ActionResult<GetTipoUsuarioDto>> GetTipoUsuarioById(int id);
+		public string UrMom();
 	}
 }

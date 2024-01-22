@@ -65,5 +65,10 @@ namespace Social_Service_API.Services
 
 			return new JsonResult(response);
 		}
+
+		public string UrMom()
+		{
+			return "ur mom";
+		}
 	}
 }

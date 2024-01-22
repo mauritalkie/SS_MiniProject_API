@@ -40,7 +40,8 @@ namespace Social_Service_API.Mappers
 				obj.apellido_materno,
 				obj.correo,
 				obj.telefono,
-				obj.usuario
+				obj.usuario,
+				obj.contrasenia
 			);
 		}
 	}

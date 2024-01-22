@@ -29,6 +29,12 @@ builder.Services.AddScoped<IClienteEstructuraService, ClienteEstructuraService>(
 builder.Services.AddScoped<ITipoAhorroClienteService, TipoAhorroClienteService>();
 builder.Services.AddScoped<IEstructuraAhorroService, EstructuraAhorroService>();
 
+builder.Services.AddCors(options => options.AddPolicy(name: "ApiOrigins",
+	policy =>
+	{
+		policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+	}));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,6 +43,8 @@ var app = builder.Build();
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }*/
+
+app.UseCors("ApiOrigins");
 
 app.UseHttpsRedirection();
 
